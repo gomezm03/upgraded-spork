@@ -3,516 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radial Chip Thinning Calculator</title>
+    <title>Chip Thinning Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #dbeafe;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
-            --danger: #ef4444;
-            --danger-light: #fee2e2;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
-                         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        }
-        
         body {
-            background-color: var(--gray-50);
-            color: var(--gray-800);
-            line-height: 1.5;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
-        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
         }
-        
-        header {
-            background: linear-gradient(to right, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 1.5rem 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
         h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
         }
-        
-        h1 svg {
-            margin-right: 0.5rem;
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
         }
-        
-        .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 0.25rem;
-            font-size: 0.875rem;
+        .input-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .header-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-        
-        .btn-header {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.2s;
-        }
-        
-        .btn-header:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn-header svg {
-            margin-right: 0.25rem;
-        }
-        
-        main {
-            padding: 1.5rem 0;
-        }
-        
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        @media (min-width: 768px) {
-            .calculator-grid {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-        
-        .card {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            padding: 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 1rem;
-        }
-        
-        .units-toggle {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1.5rem;
-        }
-        
-        .toggle-container {
-            background-color: var(--gray-100);
-            border-radius: 0.5rem;
-            padding: 0.25rem;
-            display: inline-flex;
-        }
-        
-        .toggle-btn {
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            border: none;
-            background: transparent;
-            color: var(--gray-700);
-            cursor: pointer;
-        }
-        
-        .toggle-btn.active {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .input-group {
-            margin-bottom: 1.5rem;
-            background-color: var(--gray-50);
-            padding: 1rem;
-            border-radius: 0.5rem;
-        }
-        
-        .input-group-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.75rem;
-        }
-        
         .input-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 20px;
         }
-        
-        @media (min-width: 640px) {
-            .input-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        
+
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
-        .form-group label {
+        label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.25rem;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
-        
-        .form-control {
+        input[type="number"] {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        
-        .range-container {
-            display: flex;
-            align-items: center;
-        }
-        
-        .range-input {
-            flex-grow: 1;
-            margin-right: 0.75rem;
-        }
-        
-        .range-value {
-            min-width: 2.5rem;
-            font-size: 0.875rem;
-            color: var(--gray-700);
-            text-align: right;
-        }
-        
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-        }
-        
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s;
-            border: none;
-        }
-        
-        .btn-reset {
-            background-color: var(--gray-200);
-            color: var(--gray-700);
-        }
-        
-        .btn-reset:hover {
-            background-color: var(--gray-300);
-        }
-        
-        .btn-calculate {
-            background-color: var(--primary);
+        button {
+            background-color: #3498db;
             color: white;
-            padding: 0.5rem 1.5rem;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
-        
-        .btn-calculate:hover {
-            background-color: var(--primary-dark);
+        button:hover {
+            background-color: #2980b9;
         }
-        
-        .btn svg {
-            margin-right: 0.25rem;
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .results-placeholder {
-            min-height: 16rem;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            text-align: right;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .formula-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .formula-section ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        .formula-section li {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            min-width: 200px;
+        }
+        .unit-toggle {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: var(--gray-400);
-            text-align: center;
-            padding: 1rem;
+            margin-bottom: 20px;
         }
-        
-        .results-content {
-            display: none;
-        }
-        
-        .gauge-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .gauge {
-            position: relative;
-            width: 10rem;
-            height: 10rem;
-        }
-        
-        .result-box {
-            background-color: var(--primary-light);
-            padding: 0.75rem;
-            border-radius: 0.375rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .result-box.success {
-            background-color: var(--success-light);
-        }
-        
-        .result-label {
-            font-size: 0.875rem;
-            color: var(--primary-dark);
-        }
-        
-        .result-value {
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-        
-        .result-box.success .result-label,
-        .result-box.success .result-value {
-            color: var(--success);
-        }
-        
-        .chart-container {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: var(--gray-50);
-            border-radius: 0.375rem;
-        }
-        
-        .chart-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        
-        .chip-thickness-chart {
-            width: 100%;
-            height: 200px;
-            position: relative;
-        }
-        
-        .chart-axis {
-            position: absolute;
-            background-color: var(--gray-400);
-        }
-        
-        .x-axis {
-            bottom: 0;
-            left: 30px;
-            right: 10px;
-            height: 1px;
-        }
-        
-        .y-axis {
-            top: 10px;
-            bottom: 0;
-            left: 30px;
-            width: 1px;
-        }
-        
-        .chart-label {
-            position: absolute;
-            font-size: 0.75rem;
-            color: var(--gray-600);
-        }
-        
-        .x-label {
-            bottom: -20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-        }
-        
-        .y-label {
-            transform: rotate(-90deg);
-            transform-origin: left top;
-            left: 10px;
-            top: 50%;
-        }
-        
-        .chart-line {
-            position: absolute;
-            bottom: 0;
-            left: 30px;
-            right: 10px;
-            height: 170px;
-            fill: none;
-            stroke: var(--primary);
-            stroke-width: 2;
-        }
-        
-        .engagement-marker {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            transform: translate(-50%, 50%);
-        }
-        
-        .info-box {
-            margin-top: 1.5rem;
-            background-color: var(--gray-100);
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-        
-        .info-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-        }
-        
-        .info-text {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-        }
-        
-        /* Material Group Styles */
-        .material-group {
-            border-left: 4px solid transparent;
-            transition: background-color 0.2s;
-        }
-        
-        .material-group-P {
-            border-color: #3b82f6; /* blue */
-        }
-        
-        .material-group-M {
-            border-color: #f59e0b; /* yellow/amber */
-        }
-        
-        .material-group-K {
-            border-color: #ef4444; /* red */
-        }
-        
-        .material-group-N {
-            border-color: #10b981; /* green */
-        }
-        
-        .material-group-S {
-            border-color: #a16207; /* brown */
-        }
-        
-        .material-group-H {
-            border-color: #6b7280; /* gray */
-        }
-        
-        .material-info {
-            display: none;
-            background-color: var(--gray-50);
-            border-radius: 0.375rem;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-        }
-        
-        .material-info.active {
-            display: block;
-        }
-        
-        .material-property {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.25rem;
-        }
-        
-        .material-property-label {
-            font-weight: 500;
-            color: var(--gray-700);
-        }
-        
-        .material-property-value {
-            color: var(--gray-800);
-        }
-        
-        /* Tooltips */
-        .tooltip {
+        .toggle-switch {
             position: relative;
             display: inline-block;
+            width: 60px;
+            height: 30px;
+            margin: 0 10px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        .toggle-label {
+            font-weight: bold;
+        }
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 12px;
             cursor: help;
         }
-        
-        .tooltip-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            background-color: var(--gray-300);
-            color: var(--gray-700);
-            font-size: 0.625rem;
-            font-weight: bold;
-            margin-left: 0.25rem;
-        }
-        
-        .tooltip-text {
+        .info-tooltip .tooltip-text {
             visibility: hidden;
             width: 200px;
-            background-color: var(--gray-700);
-            color: white;
+            background-color: #555;
+            color: #fff;
             text-align: center;
-            border-radius: 0.375rem;
-            padding: 0.5rem;
+            border-radius: 6px;
+            padding: 5px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
@@ -520,696 +202,516 @@
             margin-left: -100px;
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 0.75rem;
-            pointer-events: none;
         }
-        
-        .tooltip:hover .tooltip-text {
+        .info-tooltip:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
         }
-        
-        .recommendation {
-            font-size: 0.875rem;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            border-radius: 0.375rem;
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 30px;
         }
-        
-        .recommendation.good {
-            background-color: var(--success-light);
-            color: var(--success);
+        .hidden {
+            display: none;
         }
-        
-        .recommendation.warning {
-            background-color: var(--warning-light);
-            color: var(--warning);
-        }
-        
-        .recommendation.danger {
-            background-color: var(--danger-light);
-            color: var(--danger);
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            th, td {
+                padding: 6px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div>
-                    <h1>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="8" y1="21" x2="16" y2="21"></line>
-                            <line x1="12" y1="17" x2="12" y2="21"></line>
-                        </svg>
-                        Radial Chip Thinning Calculator
-                    </h1>
-                    <p class="header-subtitle">Optimize your milling parameters for consistent material removal</p>
+    <div class="container">
+        <h1>Chip Thinning Calculator</h1>
+        
+        <div class="unit-toggle">
+            <span class="toggle-label">Inch</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="unitToggle">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Metric</span>
+        </div>
+        
+        <div class="input-section">
+            <h2>Input Parameters</h2>
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="sfm">Cutting Speed: <span id="speedUnit">SFM</span>
+                        <span class="info-tooltip">ⓘ
+                            <span class="tooltip-text">Surface feet per minute (imperial) or meters per minute (metric)</span>
+                        </span>
+                    </label>
+                    <input type="number" id="sfm" value="150" step="1">
                 </div>
-                <div class="header-actions">
-                    <button class="btn-header" id="helpBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                        </svg>
-                        Help
-                    </button>
+                <div class="form-group">
+                    <label for="hex">Programmed Chip Thickness: <span id="hexUnit">in</span>
+                        <span class="info-tooltip">ⓘ
+                            <span class="tooltip-text">Chip thickness at 50% stepover (inches or mm)</span>
+                        </span>
+                    </label>
+                    <input type="number" id="hex" value="0.003" step="0.001">
                 </div>
+            </div>
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="diameter">Tool Diameter: <span id="diameterUnit">in</span>
+                        <span class="info-tooltip">ⓘ
+                            <span class="tooltip-text">Diameter of the cutting tool</span>
+                        </span>
+                    </label>
+                    <input type="number" id="diameter" value="0.75" step="0.125">
+                </div>
+                <div class="form-group">
+                    <label for="flutes">Number of Flutes:
+                        <span class="info-tooltip">ⓘ
+                            <span class="tooltip-text">Number of cutting edges on the tool</span>
+                        </span>
+                    </label>
+                    <input type="number" id="flutes" value="5" step="1" min="1">
+                </div>
+            </div>
+            <div class="input-grid" style="grid-template-columns: 1fr;">
+                <div class="form-group">
+                    <label for="doc">Depth of Cut: <span id="docUnit">in</span>
+                        <span class="info-tooltip">ⓘ
+                            <span class="tooltip-text">Axial depth of cut</span>
+                        </span>
+                    </label>
+                    <input type="number" id="doc" value="1" step="0.1">
+                </div>
+            </div>
+            <div class="buttons-container">
+                <button id="calculate">Calculate</button>
             </div>
         </div>
-    </header>
-    
-    <main>
-        <div class="container">
-            <div class="calculator-grid">
-                <!-- Input Panel -->
-                <div class="card">
-                    <h2 class="card-title">Input Parameters</h2>
-                    
-                    <!-- Units Toggle -->
-                    <div class="units-toggle">
-                        <div class="toggle-container">
-                            <button class="toggle-btn active" id="metricBtn">Metric</button>
-                            <button class="toggle-btn" id="imperialBtn">Imperial</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Tool Parameters -->
-                    <div class="input-group">
-                        <h3 class="input-group-title">Tool Information</h3>
-                        <div class="input-grid">
-                            <div class="form-group">
-                                <label for="toolDiameter">
-                                    Tool Diameter <span id="diameterUnit">(mm)</span>
-                                    <span class="tooltip">
-                                        <span class="tooltip-icon">?</span>
-                                        <span class="tooltip-text">The cutting diameter of your tool</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="toolDiameter" class="form-control" value="10" min="0.1" step="0.1">
-                            </div>
-                            <div class="form-group">
-                                <label for="numFlutes">
-                                    Number of Flutes
-                                    <span class="tooltip">
-                                        <span class="tooltip-icon">?</span>
-                                        <span class="tooltip-text">The number of cutting edges on your tool</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="numFlutes" class="form-control" value="4" min="1" step="1">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Cut Parameters -->
-                    <div class="input-group">
-                        <h3 class="input-group-title">Cut Parameters</h3>
-                        <div class="form-group">
-                            <label for="radialEngagement">
-                                Radial Engagement (% of diameter)
-                                <span class="tooltip">
-                                    <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">The percentage of the tool diameter engaged in the cut</span>
-                                </span>
-                            </label>
-                            <div class="range-container">
-                                <input type="range" id="radialEngagement" class="range-input" value="50" min="1" max="100">
-                                <span class="range-value" id="engagementValue">50%</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="axialDepth">
-                                Axial Depth of Cut <span id="axialUnit">(mm)</span>
-                                <span class="tooltip">
-                                    <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">The depth of the cut along the tool axis</span>
-                                </span>
-                            </label>
-                            <input type="number" id="axialDepth" class="form-control" value="5" min="0.1" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label for="feedPerTooth">
-                                Feed per Tooth <span id="feedUnit">(mm)</span>
-                                <span class="tooltip">
-                                    <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">The programmed feed per tooth</span>
-                                </span>
-                            </label>
-                            <input type="number" id="feedPerTooth" class="form-control" value="0.1" min="0.001" step="0.001">
-                        </div>
-                        <div class="form-group">
-                            <label for="spindleSpeed">
-                                Spindle Speed (RPM)
-                                <span class="tooltip">
-                                    <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">The rotational speed of the spindle</span>
-                                </span>
-                            </label>
-                            <input type="number" id="spindleSpeed" class="form-control" value="1000" min="1" step="10">
-                        </div>
-                    </div>
-                    
-                    <!-- Material Selection -->
-                    <div class="input-group">
-                        <h3 class="input-group-title">ISO Workpiece Material Group</h3>
-                        <div class="form-group">
-                            <label for="materialGroup">
-                                Material Group
-                                <span class="tooltip">
-                                    <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">Select the ISO material group for recommendations</span>
-                                </span>
-                            </label>
-                            <select id="materialGroup" class="form-control">
-                                <option value="">Select material group</option>
-                                <option value="P" class="material-group-P">P - Steel (Blue)</option>
-                                <option value="M" class="material-group-M">M - Stainless Steel (Yellow)</option>
-                                <option value="K" class="material-group-K">K - Cast Iron (Red)</option>
-                                <option value="N" class="material-group-N">N - Non-Ferrous (Green)</option>
-                                <option value="S" class="material-group-S">S - Superalloys (Brown)</option>
-                                <option value="H" class="material-group-H">H - Hardened Materials (Gray)</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Material Info will appear here -->
-                        <div id="materialInfo" class="material-info">
-                            <div class="material-property">
-                                <span class="material-property-label">Recommended Chip Thickness:</span>
-                                <span class="material-property-value" id="recChipThickness">0.05-0.15 mm</span>
-                            </div>
-                            <div class="material-property">
-                                <span class="material-property-label">Typical Cutting Speed:</span>
-                                <span class="material-property-value" id="recCuttingSpeed">150-250 m/min</span>
-                            </div>
-                            <div class="material-property">
-                                <span class="material-property-label">Tool Material:</span>
-                                <span class="material-property-value" id="recToolMaterial">Carbide</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="actions">
-                        <button id="resetBtn" class="btn btn-reset">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                            </svg>
-                            Reset
-                        </button>
-                        <button id="calculateBtn" class="btn btn-calculate">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                                <line x1="8" y1="21" x2="16" y2="21"></line>
-                                <line x1="12" y1="17" x2="12" y2="21"></line>
-                            </svg>
-                            Calculate
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Results Panel -->
-                <div class="card">
-                    <h2 class="card-title">Results</h2>
-                    
-                    <div id="resultsPlaceholder" class="results-placeholder">
-                        Enter parameters and click Calculate to see results
-                    </div>
-                    
-                    <div id="resultsContent" class="results-content">
-                        <!-- Gauge Visualization -->
-                        <div class="gauge-container">
-                            <div class="gauge">
-                                <svg viewBox="0 0 100 100">
-                                    <path d="M10,50 A40,40 0 1,1 90,50" fill="none" stroke="#e5e7eb" stroke-width="8" stroke-linecap="round"></path>
-                                    <path id="gaugeFill" d="M10,50 A40,40 0 1,1 90,50" fill="none" stroke="#3b82f6" stroke-width="8" stroke-linecap="round" stroke-dasharray="0, 126.8"></path>
-                                    <text id="gaugeValue" x="50" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#374151">0.00</text>
-                                    <text x="50" y="75" text-anchor="middle" font-size="10" fill="#6b7280">Chip Thinning Factor</text>
-                                </svg>
-                            </div>
-                        </div>
-                        
-                        <!-- Results Data -->
-                        <div class="result-box">
-                            <span class="result-label">Effective Chip Thickness:</span>
-                            <span class="result-value" id="chipThickness">0.000 mm</span>
-                        </div>
-                        
-                        <div class="result-box success">
-                            <span class="result-label">Adjusted Feed Rate:</span>
-                            <span class="result-value" id="adjustedFeed">0 mm/min</span>
-                        </div>
-                        
-                        <div class="result-box">
-                            <span class="result-label">Programmed Feed Rate:</span>
-                            <span class="result-value" id="programmedFeed">0 mm/min</span>
-                        </div>
-                        
-                        <div class="result-box success">
-                            <span class="result-label">Material Removal Rate:</span>
-                            <span class="result-value" id="removalRate">0 cm³/min</span>
-                        </div>
-                        
-                        <!-- Chip Thickness Recommendation -->
-                        <div id="chipRecommendation" class="recommendation" style="display: none;">
-                            Chip thickness is within recommended range.
-                        </div>
-                        
-                        <!-- Chart visualization -->
-                        <div class="chart-container">
-                            <h3 class="chart-title">Chip Thinning Factor vs. Radial Engagement</h3>
-                            <div class="chip-thickness-chart">
-                                <div class="chart-axis x-axis"></div>
-                                <div class="chart-axis y-axis"></div>
-                                <div class="chart-label x-label">Radial Engagement (%)</div>
-                                <div class="chart-label y-label">Chip Thinning Factor</div>
-                                <svg id="chartLine" class="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                    <path id="factorCurve" d=""></path>
-                                </svg>
-                                <div id="engagementMarker" class="engagement-marker"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Info Section -->
-            <div class="info-box">
-                <h3 class="info-title">What is Radial Chip Thinning?</h3>
-                <p class="info-text">
-                    Radial chip thinning occurs when the radial engagement of a milling cutter is less than 50% of its diameter.
-                    This results in a chip thickness that is less than the programmed feed per tooth. 
-                    When the cutter is not fully engaged with the workpiece (partial width of cut), the actual chip thickness 
-                    is reduced due to the angle at which the cutting edge enters the material. This calculator helps you adjust 
-                    feed rates to maintain consistent chip thickness regardless of radial engagement.
-                </p>
-            </div>
+        
+        <h2>Visualization</h2>
+        <div>
+            <label for="chartType">Select Chart Data:</label>
+            <select id="chartType">
+                <option value="rctf">RCTF (Radial Chip Thinning Factor)</option>
+                <option value="ipt">Chip Thickness (IPT/CPT)</option>
+                <option value="sfm">Surface Speed (SFM)</option>
+                <option value="feedRate">Feed Rate</option>
+                <option value="mrr">Material Removal Rate</option>
+            </select>
         </div>
-    </main>
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+        </div>
+        
+        <h2>Calculated Values</h2>
+        <div class="table-container">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>WOC %</th>
+                        <th>WOC <span class="unit-measure">in</span></th>
+                        <th>RCTF</th>
+                        <th>Chip Thickness <span class="unit-measure">in</span></th>
+                        <th>IPR/CPR <span class="unit-measure">in</span></th>
+                        <th>Adjusted SFM</th>
+                        <th>RPM</th>
+                        <th>Feed Rate <span class="unit-measure">in/min</span></th>
+                        <th>MRR <span class="unit-measure">in³/min</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="formula-section">
+            <h2>Formula Explanations</h2>
+            <ul>
+                <li>
+                    <strong>RCTF (Radial Chip Thinning Factor):</strong>
+                    <div>$$RCTF = \frac{1}{\sqrt{1-\left(1-\frac{2 \cdot D \cdot WOC}{D}\right)^2}}$$</div>
+                    <p>Where D is the tool diameter and WOC is the width of cut</p>
+                </li>
+                <li>
+                    <strong>Chip Thickness:</strong>
+                    <div>$$h_m = h_{ex} \cdot RCTF$$</div>
+                    <p>Where \(h_m\) is the actual chip thickness and \(h_{ex}\) is the programmed chip thickness</p>
+                </li>
+                <li>
+                    <strong>Chip Load per Revolution:</strong>
+                    <div>$$CPR = h_m \cdot z$$</div>
+                    <p>Where \(z\) is the number of flutes</p>
+                </li>
+                <li>
+                    <strong>Adjusted SFM:</strong>
+                    <div>$$SFM_{adj} = SFM \cdot Factor$$</div>
+                    <p>Where \(Factor\) depends on the WOC percentage (from lookup table)</p>
+                </li>
+                <li>
+                    <strong>Spindle Speed (RPM):</strong>
+                    <div>$$n = \lfloor \frac{SFM_{adj} \cdot 3.82}{D} \rfloor$$</div>
+                    <p>Where \(SFM_{adj}\) is the adjusted cutting speed, \(3.82\) is the conversion factor, and \(\lfloor \rfloor\) is the floor function</p>
+                </li>
+                <li>
+                    <strong>Feed Rate:</strong>
+                    <div>$$v_f = n \cdot CPR$$</div>
+                    <p>Where \(n\) is RPM and \(CPR\) is chip load per revolution</p>
+                </li>
+                <li>
+                    <strong>Material Removal Rate (MRR):</strong>
+                    <div>$$MRR = DOC \cdot WOC \cdot v_f$$</div>
+                    <p>Where \(DOC\) is depth of cut, \(WOC\) is width of cut, and \(v_f\) is feed rate</p>
+                </li>
+            </ul>
+        </div>
+    </div>
 
     <script>
-        // DOM Elements
-        const metricBtn = document.getElementById('metricBtn');
-        const imperialBtn = document.getElementById('imperialBtn');
-        const diameterUnit = document.getElementById('diameterUnit');
-        const axialUnit = document.getElementById('axialUnit');
-        const feedUnit = document.getElementById('feedUnit');
-        const toolDiameter = document.getElementById('toolDiameter');
-        const numFlutes = document.getElementById('numFlutes');
-        const radialEngagement = document.getElementById('radialEngagement');
-        const engagementValue = document.getElementById('engagementValue');
-        const axialDepth = document.getElementById('axialDepth');
-        const feedPerTooth = document.getElementById('feedPerTooth');
-        const spindleSpeed = document.getElementById('spindleSpeed');
-        const materialGroup = document.getElementById('materialGroup');
-        const materialInfo = document.getElementById('materialInfo');
-        const recChipThickness = document.getElementById('recChipThickness');
-        const recCuttingSpeed = document.getElementById('recCuttingSpeed');
-        const recToolMaterial = document.getElementById('recToolMaterial');
-        const resetBtn = document.getElementById('resetBtn');
-        const calculateBtn = document.getElementById('calculateBtn');
-        const resultsPlaceholder = document.getElementById('resultsPlaceholder');
-        const resultsContent = document.getElementById('resultsContent');
-        const gaugeValue = document.getElementById('gaugeValue');
-        const gaugeFill = document.getElementById('gaugeFill');
-        const chipThickness = document.getElementById('chipThickness');
-        const adjustedFeed = document.getElementById('adjustedFeed');
-        const programmedFeed = document.getElementById('programmedFeed');
-        const removalRate = document.getElementById('removalRate');
-        const chartLine = document.getElementById('chartLine');
-        const factorCurve = document.getElementById('factorCurve');
-        const engagementMarker = document.getElementById('engagementMarker');
-        const chipRecommendation = document.getElementById('chipRecommendation');
+        // WOC percentages to calculate (as fractions of diameter)
+        const wocPercentages = [
+            0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 
+            0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
+        ];
         
-        // Unit conversion factors
-        const mmToInch = 0.0393701;
-        const inchToMm = 25.4;
-        
-        // Current unit system
-        let isMetric = true;
-        
-        // ISO Material Group Recommendations
-        const materialRecommendations = {
-            'P': { // Steel
-                chipThickness: { min: 0.05, max: 0.15, unit: 'mm' },
-                cuttingSpeed: { min: 100, max: 200, unit: 'm/min' },
-                toolMaterial: 'Carbide (P10-P40)'
-            },
-            'M': { // Stainless Steel
-                chipThickness: { min: 0.03, max: 0.10, unit: 'mm' },
-                cuttingSpeed: { min: 70, max: 150, unit: 'm/min' },
-                toolMaterial: 'Carbide (M10-M40)'
-            },
-            'K': { // Cast Iron
-                chipThickness: { min: 0.08, max: 0.20, unit: 'mm' },
-                cuttingSpeed: { min: 80, max: 180, unit: 'm/min' },
-                toolMaterial: 'Carbide (K10-K40)'
-            },
-            'N': { // Non-Ferrous
-                chipThickness: { min: 0.10, max: 0.25, unit: 'mm' },
-                cuttingSpeed: { min: 200, max: 500, unit: 'm/min' },
-                toolMaterial: 'Carbide (N10-N30)'
-            },
-            'S': { // Superalloys
-                chipThickness: { min: 0.02, max: 0.08, unit: 'mm' },
-                cuttingSpeed: { min: 30, max: 80, unit: 'm/min' },
-                toolMaterial: 'Carbide (S10-S40)'
-            },
-            'H': { // Hardened Materials
-                chipThickness: { min: 0.01, max: 0.05, unit: 'mm' },
-                cuttingSpeed: { min: 20, max: 60, unit: 'm/min' },
-                toolMaterial: 'CBN or Ceramic'
-            }
+        // SFM adjustment factors based on WOC percentage
+        const sfmFactors = {
+            1: 4.0,   // 1% WOC
+            2: 4.0,   // 2% WOC
+            3: 3.5,   // 3% WOC
+            4: 3.0,   // 4% WOC
+            5: 2.5,   // 5% WOC
+            6: 2.38,  // 6% WOC
+            7: 2.16,  // 7% WOC
+            8: 1.94,  // 8% WOC
+            9: 1.72,  // 9% WOC
+            10: 1.40, // 10% WOC
+            15: 1.35, // 15% WOC
+            20: 1.30, // 20% WOC
+            25: 1.25, // 25% WOC
+            30: 1.20, // 30% WOC
+            35: 1.15, // 35% WOC
+            40: 1.10, // 40% WOC
+            45: 1.05, // 45% WOC
+            50: 1.00, // 50% WOC
+            60: 0.98, // 60% WOC
+            70: 0.96, // 70% WOC
+            80: 0.94, // 80% WOC
+            90: 0.92, // 90% WOC
+            100: 0.90 // 100% WOC
         };
         
-        // Update engagement value display
-        radialEngagement.addEventListener('input', () => {
-            engagementValue.textContent = `${radialEngagement.value}%`;
-        });
+        // Conversion factors
+        const INCH_TO_MM = 25.4;
+        const SFM_TO_METRIC = 0.3048; // SFM to meters/min
+        const CUBIC_INCH_TO_CUBIC_MM = Math.pow(INCH_TO_MM, 3);
         
-        // Toggle between metric and imperial units
-        metricBtn.addEventListener('click', () => {
-            if (!isMetric) {
-                isMetric = true;
-                metricBtn.classList.add('active');
-                imperialBtn.classList.remove('active');
-                
-                // Update unit labels
-                diameterUnit.textContent = '(mm)';
-                axialUnit.textContent = '(mm)';
-                feedUnit.textContent = '(mm)';
-                
-                // Convert values
-                toolDiameter.value = (parseFloat(toolDiameter.value) * inchToMm).toFixed(2);
-                axialDepth.value = (parseFloat(axialDepth.value) * inchToMm).toFixed(2);
-                feedPerTooth.value = (parseFloat(feedPerTooth.value) * inchToMm).toFixed(3);
-                
-                // Update step values
-                toolDiameter.step = '0.1';
-                axialDepth.step = '0.1';
-                feedPerTooth.step = '0.001';
-                
-                // Update material information if shown
-                updateMaterialInfo();
-            }
-        });
+        // Unit state
+        let isMetric = false;
         
-        imperialBtn.addEventListener('click', () => {
-            if (isMetric) {
-                isMetric = false;
-                imperialBtn.classList.add('active');
-                metricBtn.classList.remove('active');
-                
-                // Update unit labels
-                diameterUnit.textContent = '(inch)';
-                axialUnit.textContent = '(inch)';
-                feedUnit.textContent = '(inch)';
-                
-                // Convert values
-                toolDiameter.value = (parseFloat(toolDiameter.value) * mmToInch).toFixed(4);
-                axialDepth.value = (parseFloat(axialDepth.value) * mmToInch).toFixed(4);
-                feedPerTooth.value = (parseFloat(feedPerTooth.value) * mmToInch).toFixed(5);
-                
-                // Update step values
-                toolDiameter.step = '0.0001';
-                axialDepth.step = '0.0001';
-                feedPerTooth.step = '0.0001';
-                
-                // Update material information if shown
-                updateMaterialInfo();
-            }
-        });
-        
-        // Display material information
-        materialGroup.addEventListener('change', () => {
-            updateMaterialInfo();
-        });
-        
-        function updateMaterialInfo() {
-            const selectedGroup = materialGroup.value;
-            
-            if (selectedGroup && materialRecommendations[selectedGroup]) {
-                const rec = materialRecommendations[selectedGroup];
-                
-                // Convert values based on current unit system
-                if (isMetric) {
-                    recChipThickness.textContent = `${rec.chipThickness.min}-${rec.chipThickness.max} mm`;
-                    recCuttingSpeed.textContent = `${rec.cuttingSpeed.min}-${rec.cuttingSpeed.max} m/min`;
-                } else {
-                    const minInch = (rec.chipThickness.min * mmToInch).toFixed(5);
-                    const maxInch = (rec.chipThickness.max * mmToInch).toFixed(5);
-                    recChipThickness.textContent = `${minInch}-${maxInch} inch`;
-                    recCuttingSpeed.textContent = `${rec.cuttingSpeed.min}-${rec.cuttingSpeed.max} m/min`;
+        // Initialize chart
+        const ctx = document.getElementById('chart').getContext('2d');
+        let myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'RCTF',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Width of Cut (%)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
                 }
+            }
+        });
+        
+        // Calculate RCTF (Radial Chip Thinning Factor)
+        function calculateRCTF(woc, diameter) {
+            // Calculate as a percentage of diameter
+            const ratio = 2 * woc;
+            
+            // No thinning when WOC >= 50% of diameter
+            if (ratio >= 1) return 1;
+            
+            // RCTF formula: 1/SQRT(1-((1-((2*(Diameter*WOC))/Diameter))²))
+            // Simplified for woc as percentage: 1/SQRT(1-((1-2*woc)²))
+            return 1 / Math.sqrt(1 - Math.pow(1 - ratio, 2));
+        }
+        
+        // Get SFM adjustment factor for a given WOC percentage
+        function getSfmFactor(wocPct) {
+            const pct = Math.round(wocPct * 100);
+            return sfmFactors[pct] || 1.0; // Default to 1.0 if not found
+        }
+        
+        // Update the unit displays
+        function updateUnitDisplay() {
+            const speedUnit = document.getElementById('speedUnit');
+            const hexUnit = document.getElementById('hexUnit');
+            const diameterUnit = document.getElementById('diameterUnit');
+            const docUnit = document.getElementById('docUnit');
+            const unitMeasures = document.querySelectorAll('.unit-measure');
+            
+            if (isMetric) {
+                speedUnit.textContent = 'm/min';
+                hexUnit.textContent = 'mm';
+                diameterUnit.textContent = 'mm';
+                docUnit.textContent = 'mm';
                 
-                recToolMaterial.textContent = rec.toolMaterial;
-                
-                // Show material info
-                materialInfo.style.display = 'block';
-                materialInfo.className = 'material-info active material-group-' + selectedGroup;
+                unitMeasures.forEach(element => {
+                    if (element.textContent === 'in') {
+                        element.textContent = 'mm';
+                    } else if (element.textContent === 'in/min') {
+                        element.textContent = 'mm/min';
+                    } else if (element.textContent === 'in³/min') {
+                        element.textContent = 'mm³/min';
+                    }
+                });
             } else {
-                materialInfo.style.display = 'none';
+                speedUnit.textContent = 'SFM';
+                hexUnit.textContent = 'in';
+                diameterUnit.textContent = 'in';
+                docUnit.textContent = 'in';
+                
+                unitMeasures.forEach(element => {
+                    if (element.textContent === 'mm') {
+                        element.textContent = 'in';
+                    } else if (element.textContent === 'mm/min') {
+                        element.textContent = 'in/min';
+                    } else if (element.textContent === 'mm³/min') {
+                        element.textContent = 'in³/min';
+                    }
+                });
             }
         }
         
-        // Reset calculator to default values
-        resetBtn.addEventListener('click', () => {
-            // Reset to default values
+        // Convert input values based on unit selection
+        function convertInputValues() {
+            const sfmInput = document.getElementById('sfm');
+            const hexInput = document.getElementById('hex');
+            const diameterInput = document.getElementById('diameter');
+            const docInput = document.getElementById('doc');
+            
             if (isMetric) {
-                toolDiameter.value = '10';
-                axialDepth.value = '5';
-                feedPerTooth.value = '0.1';
+                // Convert from imperial to metric
+                sfmInput.value = (parseFloat(sfmInput.value) * SFM_TO_METRIC).toFixed(2);
+                hexInput.value = (parseFloat(hexInput.value) * INCH_TO_MM).toFixed(3);
+                diameterInput.value = (parseFloat(diameterInput.value) * INCH_TO_MM).toFixed(2);
+                docInput.value = (parseFloat(docInput.value) * INCH_TO_MM).toFixed(2);
+                
+                // Update step values
+                hexInput.step = 0.01;
+                diameterInput.step = 1;
+                docInput.step = 1;
             } else {
-                toolDiameter.value = '0.3937';
-                axialDepth.value = '0.1969';
-                feedPerTooth.value = '0.0039';
+                // Convert from metric to imperial
+                sfmInput.value = (parseFloat(sfmInput.value) / SFM_TO_METRIC).toFixed(2);
+                hexInput.value = (parseFloat(hexInput.value) / INCH_TO_MM).toFixed(4);
+                diameterInput.value = (parseFloat(diameterInput.value) / INCH_TO_MM).toFixed(3);
+                docInput.value = (parseFloat(docInput.value) / INCH_TO_MM).toFixed(3);
+                
+                // Update step values
+                hexInput.step = 0.001;
+                diameterInput.step = 0.125;
+                docInput.step = 0.1;
             }
-            
-            numFlutes.value = '4';
-            radialEngagement.value = '50';
-            engagementValue.textContent = '50%';
-            spindleSpeed.value = '1000';
-            materialGroup.value = '';
-            
-            // Hide material info
-            materialInfo.style.display = 'none';
-            
-            // Hide results
-            resultsPlaceholder.style.display = 'flex';
-            resultsContent.style.display = 'none';
-            chipRecommendation.style.display = 'none';
-        });
+        }
         
-        // Calculate chip thinning and draw chart
-        calculateBtn.addEventListener('click', () => {
-            // Get input values
-            const diameter = parseFloat(toolDiameter.value);
-            const flutes = parseInt(numFlutes.value);
-            const engagement = parseFloat(radialEngagement.value) / 100; // Convert to decimal
-            const axial = parseFloat(axialDepth.value);
-            const feedTooth = parseFloat(feedPerTooth.value);
-            const rpm = parseInt(spindleSpeed.value);
+        // Calculate all values and update the table and chart
+        function calculateAndUpdateUI() {
+            // Get input values (always work with inch units internally)
+            let sfm = parseFloat(document.getElementById('sfm').value);
+            let hex = parseFloat(document.getElementById('hex').value);
+            let diameter = parseFloat(document.getElementById('diameter').value);
+            const flutes = parseInt(document.getElementById('flutes').value);
+            let doc = parseFloat(document.getElementById('doc').value);
             
-            // Validate inputs
-            if (isNaN(diameter) || isNaN(flutes) || isNaN(engagement) || 
-                isNaN(axial) || isNaN(feedTooth) || isNaN(rpm)) {
-                alert('Please enter valid numerical values for all parameters.');
-                return;
-            }
-            
-            if (diameter <= 0 || flutes <= 0 || engagement <= 0 || 
-                engagement > 1 || axial <= 0 || feedTooth <= 0 || rpm <= 0) {
-                alert('All values must be positive. Engagement must be between 1% and 100%.');
-                return;
-            }
-            
-            // Calculate chip thinning factor
-            // Formula: factor = √(2 * ae - ae²) / ae where ae is radial engagement as a ratio
-            const factor = Math.sqrt(2 * engagement - engagement * engagement) / engagement;
-            
-            // Calculate effective chip thickness (he = fz × factor)
-            const effectiveChipThickness = feedTooth * factor;
-            
-            // Calculate programmed feed rate (mm/min or inch/min)
-            const programmedFeedRate = feedTooth * flutes * rpm;
-            
-            // Calculate adjusted feed rate
-            const adjustedFeedRate = programmedFeedRate / factor;
-            
-            // Calculate material removal rate (cubic mm/min or cubic inch/min)
-            // MRR = width of cut × depth of cut × feed rate
-            // Width of cut = engagement × diameter
-            const widthOfCut = engagement * diameter;
-            const materialRemovalRateValue = widthOfCut * axial * adjustedFeedRate;
-            
-            // For debugging
-            console.log("MRR Calculation:");
-            console.log("Width of Cut:", widthOfCut, isMetric ? "mm" : "inch");
-            console.log("Axial Depth:", axial, isMetric ? "mm" : "inch");
-            console.log("Adjusted Feed Rate:", adjustedFeedRate, isMetric ? "mm/min" : "ipm");
-            console.log("Raw MRR:", materialRemovalRateValue, isMetric ? "mm³/min" : "in³/min");
-            
-            // Display results
-            resultsPlaceholder.style.display = 'none';
-            resultsContent.style.display = 'block';
-            
-            // Update gauge
-            const gaugePercentage = Math.min(factor, 2) * 126.8 / 2; // Max is 2 on the gauge
-            gaugeFill.setAttribute('stroke-dasharray', `${gaugePercentage}, 126.8`);
-            gaugeValue.textContent = factor.toFixed(2);
-            
-            // Update result values
-            const unitSuffix = isMetric ? 'mm' : 'inch';
-            const feedRateUnit = isMetric ? 'mm/min' : 'ipm';
-            const volumeUnit = isMetric ? 'cm³/min' : 'in³/min';
-            
-            chipThickness.textContent = `${effectiveChipThickness.toFixed(4)} ${unitSuffix}`;
-            adjustedFeed.textContent = `${adjustedFeedRate.toFixed(1)} ${feedRateUnit}`;
-            programmedFeed.textContent = `${programmedFeedRate.toFixed(1)} ${feedRateUnit}`;
-            
-            // Convert to cm³/min or in³/min for display
-            let displayRemovalRate;
+            // Convert from metric to inch for internal calculations if in metric mode
             if (isMetric) {
-                // Convert from mm³/min to cm³/min
-                displayRemovalRate = materialRemovalRateValue / 1000;
-                console.log("Display MRR (converted to cm³/min):", displayRemovalRate);
-            } else {
-                // Already in in³/min
-                displayRemovalRate = materialRemovalRateValue;
-                console.log("Display MRR (in³/min):", displayRemovalRate);
+                sfm = sfm / SFM_TO_METRIC;
+                hex = hex / INCH_TO_MM;
+                diameter = diameter / INCH_TO_MM;
+                doc = doc / INCH_TO_MM;
             }
             
-            // Update the MRR display element
-            const removalRateElement = document.getElementById('removalRate');
-            removalRateElement.textContent = `${displayRemovalRate.toFixed(2)} ${volumeUnit}`;
+            // Get selected chart type
+            const chartType = document.getElementById('chartType').value;
+            
+            // Calculate results for each WOC percentage
+            const results = wocPercentages.map(wocPct => {
+                // Actual width of cut in inches
+                const woc = wocPct * diameter;
+                
+                // Calculate RCTF
+                const rctf = calculateRCTF(wocPct, diameter);
+                
+                // Calculate IPT (Inches Per Tooth) or Chip Thickness
+                const ipt = hex * rctf;
+                
+                // Calculate IPR (Inches Per Revolution) or Chip per Revolution
+                const ipr = ipt * flutes;
+                
+                // Get SFM adjustment factor based on WOC percentage
+                const sfmFactor = getSfmFactor(wocPct);
+                
+                // Calculate adjusted SFM
+                const adjustedSfm = sfm * sfmFactor;
+                
+                // Calculate RPM - Using Excel formula: ROUNDDOWN((adjustedSfm * 3.82) / Diameter, 0)
+                const rpm = Math.floor((adjustedSfm * 3.82) / diameter);
+                
+                // Calculate Feed Rate (IPM or mm/min) - RPM * IPR
+                const feedRate = rpm * ipr;
+                
+                // Calculate MRR (Material Removal Rate) - DOC * WOC * Feed Rate
+                const mrr = doc * woc * feedRate;
+                
+                return {
+                    wocPct: wocPct * 100, // Convert to percentage for display
+                    woc,
+                    rctf,
+                    ipt,
+                    ipr,
+                    adjustedSfm,
+                    rpm,
+                    feedRate,
+                    mrr
+                };
+            });
+            
+            // Update the table
+            const tableBody = document.querySelector('#resultsTable tbody');
+            tableBody.innerHTML = '';
+            
+            results.forEach(row => {
+                // Convert values for display if in metric mode
+                let displayWoc = row.woc;
+                let displayIpt = row.ipt;
+                let displayIpr = row.ipr;
+                let displaySfm = row.adjustedSfm;
+                let displayFeedRate = row.feedRate;
+                let displayMrr = row.mrr;
+                
+                if (isMetric) {
+                    displayWoc = row.woc * INCH_TO_MM;
+                    displayIpt = row.ipt * INCH_TO_MM;
+                    displayIpr = row.ipr * INCH_TO_MM;
+                    displaySfm = row.adjustedSfm * SFM_TO_METRIC;
+                    displayFeedRate = row.feedRate * INCH_TO_MM;
+                    displayMrr = row.mrr * CUBIC_INCH_TO_CUBIC_MM;
+                }
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.wocPct.toFixed(1)}</td>
+                    <td>${displayWoc.toFixed(4)}</td>
+                    <td>${row.rctf.toFixed(2)}</td>
+                    <td>${displayIpt.toFixed(5)}</td>
+                    <td>${displayIpr.toFixed(5)}</td>
+                    <td>${displaySfm.toFixed(0)}</td>
+                    <td>${row.rpm}</td>
+                    <td>${displayFeedRate.toFixed(1)}</td>
+                    <td>${displayMrr.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
             
             // Update the chart
-            drawChipThinningChart(engagement);
+            const chartLabels = results.map(r => r.wocPct.toFixed(1));
+            let chartData;
             
-            // Check material recommendations
-            if (materialGroup.value) {
-                checkMaterialRecommendations(materialGroup.value, effectiveChipThickness);
-            } else {
-                chipRecommendation.style.display = 'none';
-            }
-        });
-        
-        // Draw the chip thinning factor chart
-        function drawChipThinningChart(currentEngagement) {
-            // Generate path data for the chip thinning factor curve
-            let pathData = '';
-            const chartWidth = 100;
-            const chartHeight = 100;
-            
-            for (let i = 0; i <= 100; i++) {
-                const x = i; // x ranges from 0 to 100 (percent engagement)
-                const engagement = i / 100;
-                
-                // Skip 0 to avoid division by zero and NaN
-                if (engagement === 0) continue;
-                
-                // Calculate factor for this engagement
-                let factor;
-                if (engagement === 1) {
-                    factor = 1; // Full engagement = no thinning
-                } else {
-                    factor = Math.sqrt(2 * engagement - engagement * engagement) / engagement;
-                }
-                
-                // Scale factor to chart height (max factor ~= 2)
-                const y = Math.max(chartHeight - (factor * chartHeight / 2), 0);
-                
-                if (i === 1) {
-                    pathData = `M${x},${y}`;
-                } else {
-                    pathData += ` L${x},${y}`;
-                }
+            // Get the correct data for the chart, possibly converting to metric
+            if (chartType === 'rctf') {
+                chartData = results.map(r => r.rctf); // RCTF is unit-independent
+            } else if (chartType === 'ipt') {
+                chartData = results.map(r => isMetric ? r.ipt * INCH_TO_MM : r.ipt);
+            } else if (chartType === 'sfm') {
+                chartData = results.map(r => isMetric ? r.adjustedSfm * SFM_TO_METRIC : r.adjustedSfm);
+            } else if (chartType === 'feedRate') {
+                chartData = results.map(r => isMetric ? r.feedRate * INCH_TO_MM : r.feedRate);
+            } else if (chartType === 'mrr') {
+                chartData = results.map(r => isMetric ? r.mrr * CUBIC_INCH_TO_CUBIC_MM : r.mrr);
             }
             
-            // Set the path data
-            factorCurve.setAttribute('d', pathData);
-            
-            // Position the current engagement marker
-            const markerX = currentEngagement * 100;
-            let markerFactor;
-            if (currentEngagement === 1) {
-                markerFactor = 1;
-            } else {
-                markerFactor = Math.sqrt(2 * currentEngagement - currentEngagement * currentEngagement) / currentEngagement;
+            // Determine chart label based on selected type and unit
+            let chartLabel;
+            switch(chartType) {
+                case 'rctf': 
+                    chartLabel = 'RCTF (Radial Chip Thinning Factor)';
+                    break;
+                case 'ipt': 
+                    chartLabel = isMetric ? 'Chip Thickness (mm)' : 'Chip Thickness (in)';
+                    break;
+                case 'sfm':
+                    chartLabel = isMetric ? 'Surface Speed (m/min)' : 'Surface Speed (SFM)';
+                    break;
+                case 'feedRate': 
+                    chartLabel = isMetric ? 'Feed Rate (mm/min)' : 'Feed Rate (in/min)';
+                    break;
+                case 'mrr': 
+                    chartLabel = isMetric ? 'MRR (mm³/min)' : 'MRR (in³/min)';
+                    break;
+                default: 
+                    chartLabel = chartType.toUpperCase();
             }
             
-            const markerY = Math.max(chartHeight - (markerFactor * chartHeight / 2), 0);
-            engagementMarker.style.left = `calc(${markerX}% - 4px)`;
-            engagementMarker.style.bottom = `calc(${markerY}% - 4px)`;
+            myChart.data.labels = chartLabels;
+            myChart.data.datasets[0].label = chartLabel;
+            myChart.data.datasets[0].data = chartData;
+            myChart.options.scales.y.title.text = chartLabel;
+            myChart.update();
         }
         
-        // Material-specific recommendations
-        function checkMaterialRecommendations(materialCode, chipThickness) {
-            if (!materialRecommendations[materialCode]) {
-                chipRecommendation.style.display = 'none';
-                return;
-            }
-            
-            // Get recommended chip thickness range for the material
-            const rec = materialRecommendations[materialCode].chipThickness;
-            let min = rec.min;
-            let max = rec.max;
-            
-            // Convert if necessary
-            if (!isMetric) {
-                min *= mmToInch;
-                max *= mmToInch;
-            }
-            
-            // Check if chip thickness is within recommended range
-            let message = '';
-            let recommendationClass = '';
-            
-            if (chipThickness < min) {
-                message = `Warning: Chip thickness is below the recommended minimum (${min.toFixed(4)} ${isMetric ? 'mm' : 'inch'}) for this material. This may lead to rubbing, poor surface finish, and reduced tool life.`;
-                recommendationClass = 'warning';
-            } else if (chipThickness > max) {
-                message = `Warning: Chip thickness exceeds the recommended maximum (${max.toFixed(4)} ${isMetric ? 'mm' : 'inch'}) for this material. This may lead to excessive tool wear, chipping, or breakage.`;
-                recommendationClass = 'danger';
-            } else {
-                message = `Chip thickness is within the recommended range for this material (${min.toFixed(4)}-${max.toFixed(4)} ${isMetric ? 'mm' : 'inch'}).`;
-                recommendationClass = 'good';
-            }
-            
-            // Display the recommendation
-            chipRecommendation.textContent = message;
-            chipRecommendation.className = `recommendation ${recommendationClass}`;
-            chipRecommendation.style.display = 'block';
+        // Toggle between inch and metric units
+        function toggleUnits() {
+            isMetric = document.getElementById('unitToggle').checked;
+            updateUnitDisplay();
+            convertInputValues();
+            calculateAndUpdateUI();
         }
         
-        // Help button
-        document.getElementById('helpBtn').addEventListener('click', () => {
-            alert(
-                'Radial Chip Thinning Calculator Help\n\n' +
-                'This calculator helps optimize milling parameters by accounting for radial chip thinning. ' +
-                'When the cutter engagement is less than 50% of the tool diameter, the actual chip thickness ' +
-                'is reduced, requiring feed rate adjustment to maintain optimal cutting conditions.\n\n' +
-                
-                'How to use:\n' +
-                '1. Enter your tool parameters (diameter, number of flutes)\n' +
-                '2. Enter your cut parameters (engagement, depth, feed per tooth, speed)\n' +
-                '3. Select an ISO material group for specific recommendations\n' +
-                '4. Click Calculate to see the results\n\n' +
-                
-                'The results include:\n' +
-                '- Chip Thinning Factor: The factor that shows how much the chip is thinned\n' +
-                '- Effective Chip Thickness: The actual chip thickness with thinning effect\n' +
-                '- Adjusted Feed Rate: The feed rate needed to maintain desired chip thickness\n' +
-                '- Material Removal Rate: The volume of material removed per minute\n\n' +
-                
-                'The chip thinning factor is calculated using the formula: factor = √(2 * ae - ae²) / ae\n' +
-                'Where ae is the radial engagement as a ratio of tool diameter'
-            );
-        });
+        // Event listeners
+        document.getElementById('calculate').addEventListener('click', calculateAndUpdateUI);
+        document.getElementById('chartType').addEventListener('change', calculateAndUpdateUI);
+        document.getElementById('unitToggle').addEventListener('change', toggleUnits);
         
-        // Initialize the calculator
-        radialEngagement.dispatchEvent(new Event('input'));
+        // Initial calculations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUnitDisplay();
+            calculateAndUpdateUI();
+            
+            // Initialize MathJax for equation rendering
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typeset();
+            }
+        });
     </script>
 </body>
 </html>
